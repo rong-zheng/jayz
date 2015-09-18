@@ -11,6 +11,7 @@
     <modules>
         <module>jayz-core</module>
         <module>jayz-web</module>
+        <module>jayz-android</module>
   </modules>
 
 </project>
