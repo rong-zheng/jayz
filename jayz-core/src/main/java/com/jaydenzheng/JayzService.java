@@ -50,7 +50,7 @@ public class JayzService extends HttpServlet {
                 }
             }
             byte[] requestData = baos.toByteArray();
-
+            System.out.println("Reciveid " + requestData.length + " bytes of data...");
             response.setContentType("application/rmi");
             try {
                 Object mwObj = IOUtils.deSerializeObj(requestData);
