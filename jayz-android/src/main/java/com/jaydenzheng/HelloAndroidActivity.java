@@ -2,10 +2,13 @@ package com.jaydenzheng;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import static android.widget.Toast.makeText;
 
 public class HelloAndroidActivity extends Activity {
 
@@ -40,31 +43,45 @@ public class HelloAndroidActivity extends Activity {
 	    return true;
     }
 
-    public void onButton1Click() {
-        Toast.makeText(this, "onButton1Click...", Toast.LENGTH_LONG).show();
+    public void runJayzClient() {
+
+        Thread jayzThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String url = "http://192.168.1.18:8084/JayzWeb/testJaysService";
+
+                    JayzProxyFactory factory = new JayzProxyFactory(TestInterface.class, url);
+                    TestInterface ti = (TestInterface) factory.create();
+
+                    double r = ti.calculate(192.5, 20);
+                    Log.d("Proxy", "result=" + r);
+                    final String resultStr = "Result=" + r;
+                    HelloAndroidActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            makeText(HelloAndroidActivity.this, resultStr, Toast.LENGTH_LONG).show();
+                        }
+                    });
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    makeText(HelloAndroidActivity.this, ex.toString(), Toast.LENGTH_LONG).show();
+                }
+            }
+        });
         try {
-            String url = "http://192.168.15.102:8084/JayzWeb/testJaysService";
-
-            JayzProxyFactory factory = new JayzProxyFactory(TestInterface.class, url);
-
-        //    long t1 = System.currentTimeMillis();
-            TestInterface ti = (TestInterface) factory.create();
-
-//
-//            String retmsg = ti.method2(100, "hello message");
-//            System.out.println("Return message:" + retmsg);
-
-      //      ti.method1();
-
-            double r = ti.calculate(192.5, 20);
-           // long t2 = System.currentTimeMillis();
-          //  System.out.println("Time spent:" + (t2 - t1) + " ms ");
-          //  System.out.println("r=" + r);
-            Toast.makeText(this, "r=" + r, Toast.LENGTH_LONG).show();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            Toast.makeText(this, ex.toString(), Toast.LENGTH_LONG).show();
+            jayzThread.start();
+            jayzThread.join();
+            makeText(HelloAndroidActivity.this, "calling of web service ended", Toast.LENGTH_LONG).show();
+        }catch (Exception ex) {
+            makeText(HelloAndroidActivity.this, ex.toString(), Toast.LENGTH_LONG).show();
         }
+    }
+
+    public void onButton1Click() {
+        makeText(this, "onButton1Click...", Toast.LENGTH_LONG).show();
+        runJayzClient();
     }
 
 }
