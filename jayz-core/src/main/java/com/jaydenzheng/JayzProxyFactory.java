@@ -41,6 +41,7 @@ public class JayzProxyFactory {
 
         MethodWrapper mw = new MethodWrapper(method.getName(), args, method.getParameterTypes());
         byte[] mwData = IOUtils.serializeObj(mw);
+
         byte[] retData = IOUtils.postData(url, mwData);
 
         Object retObj = IOUtils.deSerializeObj(retData);
@@ -49,7 +50,7 @@ public class JayzProxyFactory {
             Class returnType = method.getReturnType();
 
             if (dw.getData() != null) {
-                // if (dw.getData().getClass() == returnType) {                 
+                // if (dw.getData().getClass() == returnType) {
                 if (dw.getData() instanceof Exception) {
 
                     boolean exceptionMatched = false;
@@ -70,8 +71,11 @@ public class JayzProxyFactory {
                     return null;
                 }
             }
+        } else if (retObj instanceof Exception) {
+            throw (Exception) retObj;
         }
         throw new Exception("Invalid data protocol.");
+
     }
 
     public String getUrl() {

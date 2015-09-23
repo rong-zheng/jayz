@@ -49,7 +49,7 @@ public class HelloAndroidActivity extends Activity {
             @Override
             public void run() {
                 try {
-                    String url = "http://192.168.1.18:8084/JayzWeb/testJaysService";
+                    String url = "http://192.168.1.18:8084/jayz-web/testJaysService";
 
                     JayzProxyFactory factory = new JayzProxyFactory(TestInterface.class, url);
                     TestInterface ti = (TestInterface) factory.create();
@@ -66,21 +66,30 @@ public class HelloAndroidActivity extends Activity {
                     });
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                    makeText(HelloAndroidActivity.this, ex.toString(), Toast.LENGTH_LONG).show();
+                    final String msg = ex.getMessage();
+                    Log.d("Proxy", msg);
+                    HelloAndroidActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            makeText(HelloAndroidActivity.this, msg, Toast.LENGTH_LONG).show();
+                        }
+                    });
+
                 }
             }
         });
         try {
             jayzThread.start();
             jayzThread.join();
-            makeText(HelloAndroidActivity.this, "calling of web service ended", Toast.LENGTH_LONG).show();
+           // makeText(HelloAndroidActivity.this, "calling of web service ended", Toast.LENGTH_LONG).show();
         }catch (Exception ex) {
             makeText(HelloAndroidActivity.this, ex.toString(), Toast.LENGTH_LONG).show();
         }
     }
 
     public void onButton1Click() {
-        makeText(this, "onButton1Click...", Toast.LENGTH_LONG).show();
+        //makeText(this, "onButton1Click...", Toast.LENGTH_LONG).show();
         runJayzClient();
     }
 
