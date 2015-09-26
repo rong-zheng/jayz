@@ -206,6 +206,11 @@ public class MyViewManager extends ViewManager {
                 .withValue(Phone.TYPE, Phone.TYPE_HOME)
                 .build());
 
+        // The following command only add new Group, but did not assoicate the contact with the group...
+        ops.add(ContentProviderOperation
+                .newInsert(ContactsContract.Groups.CONTENT_URI)
+                .withValue(ContactsContract.Groups.TITLE, "HCM").build());
+
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Bitmap mBitmap = this.loadImage("/storage/sdcard0/DCIM/Camera/test.jpg");
         if (mBitmap != null) {    // If an image is selected successfully
