@@ -1,15 +1,11 @@
 package com.jaydenzheng;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import static android.widget.Toast.makeText;
@@ -17,6 +13,9 @@ import static android.widget.Toast.makeText;
 public class HelloAndroidActivity extends Activity {
 
     private Button button1;
+   // private OrientationEventListener mOrientationListener;
+    private int currentOrientation;
+    private ViewManager currentPage;
 
     /**
      * Called when the activity is first created.
@@ -30,6 +29,31 @@ public class HelloAndroidActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        /*
+        mOrientationListener = new OrientationEventListener(this,
+                SensorManager.SENSOR_DELAY_NORMAL) {
+
+                    @Override
+                    public void onOrientationChanged(int orientation) {
+                        onOrientationChange(orientation);
+                    }
+                };
+        */
+
+        android.content.res.Configuration config = this.getResources().getConfiguration();
+        Log.d("onCreate", "---------------------------------");
+        this.currentOrientation  = config.orientation;
+
+       // mOrientationListener.disable();
+        /*
+        if (mOrientationListener.canDetectOrientation() == true) {
+            Log.d("act", "Can detect orientation");
+            mOrientationListener.enable();
+        } else {
+            Log.d("act", "Cannot detect orientation");
+            mOrientationListener.disable();
+        }
+        */
 //        setContentView(R.layout.activity_main);
 //        this.button1 = (Button) findViewById(R.id.button1);
 //        View.OnClickListener buttonClickListener = new View.OnClickListener() {
@@ -41,85 +65,12 @@ public class HelloAndroidActivity extends Activity {
 //        };
 //        
 //        this.button1.setOnClickListener(buttonClickListener);
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-
-        LinearLayout btnLayout = new LinearLayout(this);
-        btnLayout.setOrientation(LinearLayout.HORIZONTAL);
-        Button btn1 = new Button(this);
-        btn1.setText("Btn1");
-        btn1.setPadding(0,0,0,0);
-        LayoutParams lp1 = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        lp1.setMargins(0,0,0,0);
-        //btn1.setLayoutParams(lp1);
-        // btn1.setGravity(Gravity.RIGHT);
-
-        Button btn2 = new Button(this);
-        btn2.setText("Btn2");
-        btn2.setPadding(0, 0, 0, 0);
-
-        LayoutParams lp2 = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        lp2.setMargins(-21,0,0,0);
-        //btn2.setLayoutParams(lp2);
-
-        btnLayout.addView(btn1,lp1);
-        btnLayout.addView(btn2, lp2);
-
-        TextView text = new TextView(this);
-
-        text.setText("Login Name:");
-        text.setTextSize(24f);
-
-        EditText textBox = new EditText(this);
-        textBox.setTextSize(18f);
-        textBox.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-        LinearLayout loginRow = new LinearLayout(this);
-        loginRow.setOrientation(LinearLayout.VERTICAL);
-        loginRow.addView(text);
-        loginRow.addView(textBox);
-        loginRow.setPadding(10, 20, 10, 10);
-
-        layout.addView(btnLayout);
-        layout.addView(loginRow);
-
-        RelativeLayout relativeLayout = new RelativeLayout(this);
-        relativeLayout.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-        Button btn3 = new Button(this);
-        btn3.setText("Btn3");
-        btn3.setId(3);
-        //btn3.setLayoutParams(lp1);
-
-        Button btn4 = new Button(this);
-        btn4.setText("Btn4");
-        btn4.setId(4);
-        //btn4.setLayoutParams(lp1);
-
-        Button btn5 = new Button(this);
-        btn5.setText("Btn5");
-        btn5.setId(5);
-        //btn5.setLayoutParams(lp1);
-
-        RelativeLayout.LayoutParams lp3 = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        lp3.addRule(RelativeLayout.ALIGN_PARENT_START);       
-        relativeLayout.addView(btn3, lp3);
-        
-        RelativeLayout.LayoutParams lp4 = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-
-        Log.d("layout", "btn3 id:" + btn3.getId());
-        Log.d("layout", "btn4 id:" + btn4.getId());
-
-        lp4.addRule(RelativeLayout.BELOW, btn3.getId());
-        lp4.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-
-        relativeLayout.addView(btn4, lp4);
-
-        RelativeLayout.LayoutParams lp5 = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        lp5.addRule(RelativeLayout.LEFT_OF, btn4.getId());
-        lp5.addRule(RelativeLayout.BELOW, btn3.getId());
-        relativeLayout.addView(btn5, lp5);
-
-        layout.addView(relativeLayout);
-        this.setContentView(layout);
+//        MyViewManager viewMgr = new MyViewManager(this);
+//    //    Scene scene1 = new Scene(null)
+//        this.setContentView(viewMgr.getViewGroup());
+        LoginPage ciMgr = new LoginPage(this);
+        this.currentPage = ciMgr;
+        this.setContentView(this.currentPage.getViewGroup());
 
     }
 
@@ -180,4 +131,33 @@ public class HelloAndroidActivity extends Activity {
         runJayzClient();
     }
 
+    public void switchToPage1() {
+        MyViewManager viewMgr = new MyViewManager(this);
+        this.setContentView(viewMgr.getViewGroup());
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        Log.d(this.getClass().getName(), "orientation:" + newConfig.orientation);
+        this.currentPage.refreshLayout();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // mOrientationListener.disable();
+    }
+
+    public void onOrientationChange(int orientation) {
+     //   Log.d("act", "Orientation changed to " + orientation);
+
+        android.content.res.Configuration config = this.getResources().getConfiguration();
+       Log.d(this.getClass().getName(), "orientation:" + config.orientation +", currentOrientaion:" + this.currentOrientation);
+        if (config.orientation != this.currentOrientation) {
+            Log.d("act", "ORIENTATION CHANGED...");
+            this.currentOrientation = config.orientation;
+        }
+
+    }
 }
