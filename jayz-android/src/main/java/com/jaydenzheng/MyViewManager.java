@@ -8,6 +8,7 @@ package com.jaydenzheng;
 import android.app.Activity;
 import android.content.ContentProviderOperation;
 import android.content.OperationApplicationException;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.RemoteException;
@@ -201,16 +202,32 @@ public class MyViewManager extends ViewManager {
         // to insert Address in the table ContactsContract.Data
         ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
                 .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactID)
-                .withValue(ContactsContract.Data.MIMETYPE, CommonDataKinds.Email.CONTENT_ITEM_TYPE)
-                .withValue("data1", "13 Neptune Ave Brooklyn NY 11235")
+                .withValue(ContactsContract.Data.MIMETYPE, CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE)
+                .withValue(CommonDataKinds.StructuredPostal.FORMATTED_ADDRESS, "13 Neptune Ave Brooklyn NY 11235")
                 .withValue(Phone.TYPE, Phone.TYPE_HOME)
                 .build());
 
-        // The following command only add new Group, but did not assoicate the contact with the group...
-        ops.add(ContentProviderOperation
-                .newInsert(ContactsContract.Groups.CONTENT_URI)
-                .withValue(ContactsContract.Groups.TITLE, "HCM").build());
+        // to insert Address in the table ContactsContract.Data
+        ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactID)
+                .withValue(ContactsContract.Data.MIMETYPE, CommonDataKinds.Website.CONTENT_ITEM_TYPE)
+                .withValue(CommonDataKinds.Website.DATA1, "http://hcm.jaydenzheng.com:8080/HCMWebApp/")
+                .withValue(Phone.TYPE, Phone.TYPE_HOME)
+                .build());
 
+        String groupId = this.getGroupId("HCM");
+        Log.d("MyViewManager", "GroupId:" + groupId);
+        ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactID)
+                .withValue(ContactsContract.Data.MIMETYPE, CommonDataKinds.GroupMembership.CONTENT_ITEM_TYPE)
+                .withValue(ContactsContract.CommonDataKinds.GroupMembership.GROUP_ROW_ID, groupId)
+                //               .withValue(Phone.TYPE, Phone.TYPE_HOME)
+                .build());
+
+        // The following command only add new Group, but did not assoicate the contact with the group...
+//        ops.add(ContentProviderOperation
+//                .newInsert(ContactsContract.Groups.CONTENT_URI)
+//                .withValue(ContactsContract.Groups.TITLE, "HCM").build());
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Bitmap mBitmap = this.loadImage("/storage/sdcard0/DCIM/Camera/test.jpg");
         if (mBitmap != null) {    // If an image is selected successfully
@@ -231,7 +248,7 @@ public class MyViewManager extends ViewManager {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }else {
+        } else {
             Log.d("MyViewManager", "Unable to load image....");
         }
 
@@ -265,6 +282,53 @@ public class MyViewManager extends ViewManager {
                 }
             }
         }
-        return null;        
+        return null;
+    }
+
+    private String getGroupId(String GroupTitle) {
+        String GroupId = ifgroup(GroupTitle);
+        if (GroupId == null) {
+
+            ArrayList<ContentProviderOperation> opsGroup = new ArrayList<ContentProviderOperation>();
+            opsGroup.add(ContentProviderOperation.newInsert(ContactsContract.Groups.CONTENT_URI)
+                    .withValue(ContactsContract.Groups.TITLE, GroupTitle)
+                    .withValue(ContactsContract.Groups.GROUP_VISIBLE, true)
+                    .withValue(ContactsContract.Groups.ACCOUNT_NAME, GroupTitle)
+                    .withValue(ContactsContract.Groups.ACCOUNT_TYPE, GroupTitle)
+                    .build());
+            try {
+
+                this.act.getContentResolver().applyBatch(ContactsContract.AUTHORITY, opsGroup);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return ifgroup(GroupTitle);
+    }
+
+    private String ifgroup(String GroupTitle) {
+        String selection = ContactsContract.Groups.DELETED + "=? and " + ContactsContract.Groups.GROUP_VISIBLE + "=?";
+        String[] selectionArgs = {"0", "1"};
+        Cursor cursor = this.act.getContentResolver().query(ContactsContract.Groups.CONTENT_URI, null, selection, selectionArgs, null);
+        cursor.moveToFirst();
+        int len = cursor.getCount();
+
+        String GroupId = null;
+        for (int i = 0; i < len; i++) {
+            String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Groups._ID));
+            String title = cursor.getString(cursor.getColumnIndex(ContactsContract.Groups.TITLE));
+
+            Log.d("MyViewManager", "title=" + title + ", id=" + id);
+            if (title.equals(GroupTitle)) {
+                GroupId = id;
+                break;
+            }
+
+            cursor.moveToNext();
+        }
+        cursor.close();
+
+        return GroupId;
     }
 }

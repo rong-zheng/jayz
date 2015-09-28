@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 /**
@@ -30,6 +31,8 @@ public class LoginPage extends ViewManager {
 
     private Button buttonLogin;
     private RelativeLayout layout;
+    private ScrollView scrool;
+    
 
     public LoginPage(Activity act) {
         super(act);
@@ -37,12 +40,19 @@ public class LoginPage extends ViewManager {
 
     @Override
     public void init() {
+        
         int id = 1;
+        scrool = new ScrollView(act);
+        this.scrool.setId(id);
+        scrool.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        
+        
         this.layout = new RelativeLayout(act);
-        this.layout.setId(id);
+        this.layout.setId(++id);
         this.layout.setPadding(50, 50, 50, 20);
         layout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-
+        scrool.addView(layout);
+        
         this.textViewLogin = new TextView(act);
         this.textViewLogin.setText("User Name:");
         this.textViewLogin.setId(++id);
@@ -86,6 +96,7 @@ public class LoginPage extends ViewManager {
         android.content.res.Configuration config = act.getResources().getConfiguration();
         Log.d("refreshLayout", "orientation:" + config.orientation);
         if (config.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            this.scrool.removeAllViews();
             this.layout.removeAllViews();
             RelativeLayout.LayoutParams lp1 = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
             lp1.addRule(RelativeLayout.ALIGN_PARENT_START);
@@ -111,7 +122,9 @@ public class LoginPage extends ViewManager {
             lp5.addRule(RelativeLayout.BELOW, this.editTextPassword.getId());
             lp5.addRule(RelativeLayout.CENTER_HORIZONTAL);
             this.layout.addView(this.buttonLogin, lp5);
+            this.scrool.addView(layout);
         }else if (config.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            this.scrool.removeAllViews();
             this.layout.removeAllViews();
             RelativeLayout.LayoutParams lp1 = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
             lp1.addRule(RelativeLayout.ALIGN_PARENT_START);
@@ -141,13 +154,14 @@ public class LoginPage extends ViewManager {
             lp5.addRule(RelativeLayout.BELOW, this.editTextPassword.getId());
             lp5.setMargins(0, 80, 0, 0);
             this.layout.addView(this.buttonLogin, lp5);
+            this.scrool.addView(layout);
         }
 
     }
 
     @Override
     public ViewGroup getViewGroup() {
-        return this.layout;
+        return this.scrool;
     }
 
     public void onLoginButtonClick() {
