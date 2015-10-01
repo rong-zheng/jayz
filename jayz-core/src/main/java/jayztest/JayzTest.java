@@ -17,7 +17,7 @@ public class JayzTest {
     public static void main(String[] args) {
 
         try {
-            String url = "http://localhost:8084/JayzWeb/testJaysService";
+            String url = "http://localhost:8084/jayz-web/testJaysService";
 
             JayzProxyFactory factory = new JayzProxyFactory(TestInterface.class, url);
 

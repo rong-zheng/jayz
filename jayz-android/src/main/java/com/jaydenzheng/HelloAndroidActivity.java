@@ -16,6 +16,7 @@ public class HelloAndroidActivity extends Activity {
    // private OrientationEventListener mOrientationListener;
     private int currentOrientation;
     private ViewManager currentPage;
+    private  LoginPage loginPage;
 
     /**
      * Called when the activity is first created.
@@ -70,6 +71,7 @@ public class HelloAndroidActivity extends Activity {
 //        this.setContentView(viewMgr.getViewGroup());
         LoginPage ciMgr = new LoginPage(this);
         this.currentPage = ciMgr;
+        this.loginPage = ciMgr;
         this.setContentView(this.currentPage.getViewGroup());
 
     }
@@ -159,5 +161,25 @@ public class HelloAndroidActivity extends Activity {
             this.currentOrientation = config.orientation;
         }
 
+    }
+
+    @Override
+    protected void onStop() {
+        Log.d("main", "onStop..."); 
+        super.onStop();
+        this.loginPage.stopClock();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d("main", "onPause...");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("main", "onResume");
+        this.loginPage.startClock();
     }
 }
