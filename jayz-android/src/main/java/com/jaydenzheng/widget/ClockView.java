@@ -25,7 +25,7 @@ import java.text.SimpleDateFormat;
  *
  * @author Rong Zheng
  */
-public class ClockView extends View implements Runnable, OnGestureListener {
+public class ClockView extends View implements Runnable, OnGestureListener, RotationGestureDetector.OnRotationGestureListener {
 
     private Context context;
     Handler mHandler = new Handler();
@@ -33,14 +33,21 @@ public class ClockView extends View implements Runnable, OnGestureListener {
     private GestureDetector gestureScanner;
     private ScaleGestureDetector mScaleDetector;
     private float scaleFactor = 1.0f;
+    private RotationGestureDetector mRotationDetector;
+    
+    private float rotatedAngle = 0;
+    private boolean rotating = false;
+
+   // private boolean actionMoved = false;
 
     public ClockView(Context context) {
         super(context);
         this.context = context;
      //   mHandler.removeCallbacks(this);
-     //   mHandler.post(this);
+        //   mHandler.post(this);
         gestureScanner = new GestureDetector(context, this);
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+        mRotationDetector = new RotationGestureDetector(this);
     }
 
     @Override
@@ -109,7 +116,7 @@ public class ClockView extends View implements Runnable, OnGestureListener {
 
         // Calculate the desired size as a proportion of our testTextSize.
         float desiredTextSize = testTextSize * desiredWidth / bounds.width();
-        
+
         // int scaledSize = getResources().getDimensionPixelSize()
         Log.d("clock", "desiredTextSize:" + desiredTextSize);
         // Set the paint for that size.
@@ -129,19 +136,22 @@ public class ClockView extends View implements Runnable, OnGestureListener {
 
     public void start() {
       //  mHandler.removeCallbacks(this);
-      //  mHandler.post(this);
+        //  mHandler.post(this);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+       // this.actionMoved = (event.getActionMasked() == MotionEvent.ACTION_MOVE);
         gestureScanner.onTouchEvent(event);
         this.mScaleDetector.onTouchEvent(event);
+        mRotationDetector.onTouchEvent(event);
+
         return true;
     }
 
     @Override
-    public boolean onDown(MotionEvent me) {
-        Log.d("clock", "onDown...");
+    public boolean onDown (MotionEvent me){
+            Log.d("clock", "onDown...");
         return false;
     }
 
@@ -173,11 +183,32 @@ public class ClockView extends View implements Runnable, OnGestureListener {
         Log.d("clock", "onFling...vx=" + vx + ", vy=" + vy);
         if (vx > 10) {
             Log.d("clock", "swap right");
-        }else if (vx < -10) {
+        } else if (vx < -10) {
             Log.d("Clock", "swap left");
         }
 
-            return false;
+        return false;
+    }
+
+    @Override
+    public void OnRotation(RotationGestureDetector rotationDetector) {
+        float angle = rotationDetector.getAngle();
+
+        Log.d("RotationGestureDetector", "Rotation: " + Float.toString(angle)  );
+        this.rotatedAngle = angle;
+    }
+
+    @Override
+    public void OnRotationStart() {
+        this.rotatedAngle = 0;
+        this.rotating = true;
+        Log.d("clock", "Rotation Started." );
+    }
+
+    @Override
+    public void OnRotationStop() {
+        this.rotating = false;
+        Log.d("clock", "Rotation Stopped." );
     }
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {

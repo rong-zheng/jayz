@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.ViewFlipper;
 import com.jaydenzheng.widget.ClockView;
 
 /**
@@ -33,6 +34,7 @@ public class LoginPage extends ViewManager {
     private Button buttonLogin;
     private RelativeLayout layout;
     private ScrollView scrool;
+    private ViewFlipper fliper; // Example: http://examples.javacodegeeks.com/android/core/widget/viewflipper/android-viewflipper-example/
 
     private ClockView clock;
 
